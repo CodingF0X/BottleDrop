@@ -7,7 +7,7 @@ const morgan = require("morgan");
 const cors = require("cors");
 
 const warehouserRouter = require('./src/Routes/warehouseRoutes');
-// const beverageRouter = require('./src/Routes/beverageRoutes');
+const beverageRouter = require('./src/Routes/beverageRoutes');
 const errorHandler = require("./src/Middleware/errorHandler");
 
 app.use(express.json());
@@ -24,7 +24,7 @@ app.listen(process.env.PORT, DB, () => {
 });
 
 app.use("/api/warehouse", warehouserRouter);
-// app.use("/api/warehouse/beverage", beverageRouter);
+app.use("/api/warehouse/beverage", beverageRouter);
 app.all("*", (req, res, next) => {
   const err = new Error();
   err.statusCode = 404;
