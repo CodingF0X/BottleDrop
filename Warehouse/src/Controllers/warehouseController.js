@@ -1,4 +1,5 @@
 const Warehouse = require("../Models/warehouseModel");
+const { updateLog } = require("../Utils/updateLog");
 
 //-- CREATE WAREHOUSE INVENTORY --//
 exports.createInventory = async (req, res) => {
@@ -68,3 +69,32 @@ exports.getSingleBeverage = async (req,res,next)=>{
         next(error)
     }
 }
+
+//-- REPLENISH BAR --//
+exports.replenishBar = async (req, res, next) => {
+  const { bevtype, quantity, barName } = req.body;
+  try {
+    const warehouse = await Warehouse.findOne().populate(`beverages.${bevtype}`);
+    if (!warehouse) {
+      throw new Error("Warehouse not found");
+    }
+
+    if(!warehouse.beverages.has(bevtype)){
+      throw new Error("Beverage not found");
+    }
+
+    const arrDrinkType = warehouse.beverages.get(bevtype);
+    if (!arrDrinkType || arrDrinkType.length === 0) {
+        res.status(200).json("Drink type does not exist or is empty");
+        throw new Error("Drink type does not exist or is empty")
+    }
+    const result = updateLog(bevtype, arrDrinkType, quantity, barName, warehouse);
+
+    await warehouse.save();
+    console.log(result);
+    res.status(200).json(result);
+  } catch (error) {
+    console.log(error);
+    next(error);
+  }
+};
