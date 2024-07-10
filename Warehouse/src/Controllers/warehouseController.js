@@ -46,3 +46,25 @@ exports.getAllBeverages = async (req, res, next) => {
     next(error);
   }
 };
+
+
+//-- GET SINGLE BEVERAGE --//
+exports.getSingleBeverage = async (req,res,next)=>{
+    const id = req.params.id
+    let beverage = null;
+    try {
+        const warehouse  = await Warehouse.findOne();
+        for(const [bevType, bevId] of warehouse.beverages){
+            if(bevId.includes(id)){
+                beverage = bevId
+                await warehouse.populate({
+                    path: `beverages.${bevType}`,
+                    match: { _id: id },
+                  });
+            }
+        }
+        res.status(200).json(beverage[0]);
+    } catch (error) {
+        next(error)
+    }
+}
