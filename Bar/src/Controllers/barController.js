@@ -1,4 +1,5 @@
 const Bar = require("../Models/barModel");
+const { ManuallyUpdateStock } = require("../utils/replenishStock");
 
 //-- CREATE NEW BAR --//
 exports.createBar = async (req, res, next) => {
@@ -65,21 +66,21 @@ exports.getBarDetails = async (req, res, next) => {
 //-- UPDATE BEVERAGE STOCK --//
 exports.updateStock = async (req, res, next) => {
   const id = req.params.id;
-  const { bevType, qty } = req.body;
+  const { bevType, quantity } = req.body;
   try {
     const bar = await Bar.findById(id);
+
     if (!bar) {
       return res.status(500).json("Bar not found");
     }
 
-    const result = await ManuallyUpdateStock(bar.name, bevtype, quantity);
+    const result = await ManuallyUpdateStock(bar.name, bevType, quantity);
 
     const keys = bar.beverageStock.keys();
 
     if (!bar.beverageStock.has(bevType)) {
       bar.beverageStock.set(bevType, []);
     }
-
     for (const key of keys) {
       const currentStock = bar.beverageStock.get(key);
       if (result[key]) {
