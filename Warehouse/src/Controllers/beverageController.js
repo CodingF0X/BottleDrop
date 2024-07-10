@@ -25,3 +25,27 @@ exports.createBeverage = async (req,res,next) => {
         next(error);
     }
 }
+
+exports.updateBeverage = async (req,res,next) => {
+    const { bevType } = req.body;
+    const id = req.params.id;
+    try {
+        
+        const updateBeverage = await Beverage.findByIdAndUpdate(id,{
+            $set: req.body
+        }, {new:true})
+
+        if (!updateBeverage) {
+            return res.status(404).json({ message: 'Beverage not found' });
+        }
+
+        const updatedInventory = await Warehouse.updateOne({},{
+            $set:{[`beverages.${bevType}`]: updateBeverage}
+        })
+
+        
+        res.status(200).json(updateBeverage)
+    } catch (error) {
+        next(error)
+    }
+}
