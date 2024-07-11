@@ -7,6 +7,7 @@ const morgan = require('morgan');
 const cors = require('cors');
 
 const barRouter = require('./src/Routes/barRoutes')
+const orderRouter = require('./src/Routes/orderRoutes')
 const errorHandler = require('./src/Middleware/errorHandler');
 
 app.use(express.json());
@@ -23,6 +24,7 @@ const DB = mongoose.connect(process.env.MONGO_URI)
     })
 
 app.use('/api/bar',barRouter)
+app.use('/api/order', orderRouter )
 app.all('*',(req,res,next)=>{
     const err = new Error()
     err.statusCode = 404;
