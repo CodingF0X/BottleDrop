@@ -28,10 +28,10 @@ public class DropPoint {
     @Column(nullable = false)
     private int capacity;
 
-    @ElementCollection
+    @Column
     private List<Long> empties;
-
-    @ElementCollection
+    
+    @Column
     private List<Long> log;
 
     @Column(updatable = false)

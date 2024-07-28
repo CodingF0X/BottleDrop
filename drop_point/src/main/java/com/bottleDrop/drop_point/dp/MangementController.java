@@ -5,6 +5,9 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -23,5 +26,17 @@ public class MangementController {
         List<DropPoint> dropPoints = dropPointService.getDropPoints();
 
         return new ResponseEntity<>(dropPoints, HttpStatus.OK);
+    }
+
+    @PostMapping
+    public DropPoint createDropPoint(@RequestBody DropPoint dropPoint) {
+        return dropPointService.saveDropPoint(dropPoint);
+    }
+
+    @PostMapping("/{id}/dropBottles")
+    public DropPoint dropBottles(
+            @PathVariable Long id,
+            @RequestBody List<Long> emptyBottles) {
+        return dropPointService.dropBottles(id, emptyBottles);
     }
 }
