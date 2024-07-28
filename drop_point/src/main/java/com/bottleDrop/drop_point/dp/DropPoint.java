@@ -10,6 +10,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
+import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
 @Entity
@@ -17,9 +18,10 @@ import jakarta.persistence.Table;
 public class DropPoint {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @SequenceGenerator(name = "dropPoint_sequence", sequenceName = "dropPoint_sequence", allocationSize = 1)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "dropPoint_sequence")
     private Long id;
-    
+
     @Column(nullable = false)
     private String location;
 
@@ -48,10 +50,10 @@ public class DropPoint {
         this.updatedAt = new java.sql.Timestamp(System.currentTimeMillis());
     }
 
+    public DropPoint() {
+    }
 
-    public DropPoint(){}
-
-    public DropPoint(Long id, String location, int capacity, List<Long> empties,  List<Long> log){
+    public DropPoint(Long id, String location, int capacity, List<Long> empties, List<Long> log) {
         this.id = id;
         this.location = location;
         this.capacity = capacity;
