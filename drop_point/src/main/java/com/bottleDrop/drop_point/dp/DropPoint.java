@@ -29,10 +29,10 @@ public class DropPoint {
     private int capacity;
 
     @Column
-    private List<Long> empties;
+    private List<String> empties;
     
     @Column
-    private List<Long> log;
+    private List<String> log;
 
     @Column(updatable = false)
     private java.sql.Timestamp createdAt;
@@ -53,7 +53,7 @@ public class DropPoint {
     public DropPoint() {
     }
 
-    public DropPoint(Long id, String location, int capacity, List<Long> empties, List<Long> log) {
+    public DropPoint(Long id, String location, int capacity, List<String> empties, List<String> log) {
         this.id = id;
         this.location = location;
         this.capacity = capacity;
@@ -73,11 +73,11 @@ public class DropPoint {
         return location;
     }
 
-    public List<Long> getEmpties() {
+    public List<String> getEmpties() {
         return empties;
     }
 
-    public List<Long> getLog() {
+    public List<String> getLog() {
         return log;
     }
 
@@ -101,11 +101,11 @@ public class DropPoint {
         this.location = location;
     }
 
-    public void setEmpties(List<Long> empties) {
+    public void setEmpties(List<String> empties) {
         this.empties = empties;
     }
 
-    public void setLog(List<Long> log) {
+    public void setLog(List<String> log) {
         this.log = log;
     }
 
