@@ -4,13 +4,13 @@ import java.util.List;
 
 public class DropBottleRequest {
 
-    private List<Long> emptyBottles;
+    private List<String> emptyBottles;
 
-    public List<Long> getEmptyBottles() {
+    public List<String> getEmptyBottles() {
         return emptyBottles;
     }
 
-    public void setEmptyBottles(List<Long> emptyBottles) {
+    public void setEmptyBottles(List<String> emptyBottles) {
         this.emptyBottles = emptyBottles;
     }
 }
