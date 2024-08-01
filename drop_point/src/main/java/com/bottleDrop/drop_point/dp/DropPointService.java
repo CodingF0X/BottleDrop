@@ -28,22 +28,22 @@ public class DropPointService {
     }
 
     //-- Drop bottles --//
-    public DropPoint dropBottles(Long dropPointId, List<Long> emptyBottles) {
-        Optional<DropPoint> optionalDropPoint = dropPointRepository.findById(dropPointId);
+    public DropPoint dropBottles(List<Long> emptyBottles) {
+        Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
         if (optionalDropPoint.isEmpty()) {
             throw new RuntimeException("DropPoint not found");
         }
 
         DropPoint dropPoint = optionalDropPoint.get();
         List<Long> empties = dropPoint.getEmpties();
+        List<Long> log = dropPoint.getLog();
 
         if (empties.size() >= 6 || (empties.size() + emptyBottles.size()) > 6) {
             dropPoint.setEmpties(List.of()); // Clear the empties
         }
 
         empties.addAll(emptyBottles); // Add new empty bottles
-        dropPoint.setLog(emptyBottles); // Update the log with new empty bottles
-
+        log.addAll(emptyBottles);
         return dropPointRepository.save(dropPoint);
     }
 

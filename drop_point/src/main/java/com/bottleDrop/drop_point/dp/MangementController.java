@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/api/drop_point/")
+@RequestMapping("/api/drop_point")
 public class MangementController {
 
     private DropPointService dropPointService;
@@ -33,10 +33,10 @@ public class MangementController {
         return dropPointService.saveDropPoint(dropPoint);
     }
 
-    @PostMapping("/{id}/dropBottles")
-    public DropPoint dropBottles(
-            @PathVariable Long id,
-            @RequestBody List<Long> emptyBottles) {
-        return dropPointService.dropBottles(id, emptyBottles);
+    @PostMapping("/dropBottles")
+    public ResponseEntity <DropPoint> dropBottles(
+            @RequestBody DropBottleRequest emptyBottles) {
+                DropPoint dropPoint = dropPointService.dropBottles(emptyBottles.getEmptyBottles());
+        return new ResponseEntity<>(dropPoint, HttpStatus.OK);
     }
 }
