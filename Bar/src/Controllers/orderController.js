@@ -1,5 +1,6 @@
 const Bar = require("../Models/barModel");
 const Order = require("../Models/orderModel");
+const collectBottles = require("../utils/dropBottles");
 const { replenishStock } = require("../utils/replenishStock");
 
 // Make new order.
@@ -86,7 +87,7 @@ exports.createOrder = async (req, res, next) => {
     bar.orders.push(newOrder._id);
     await bar.save();
 
-    // setTimeout(()=> collectBottles(allBeverageIDs),5000)
+    setTimeout(()=> collectBottles(allBeverageIDs),5000)
     // // const timeout = setTimeout(collectBottles,5000)
     // //clearTimeout(timeout)
 
