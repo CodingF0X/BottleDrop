@@ -41,8 +41,15 @@ public class MangementController {
     }
 
     @PostMapping("/notify-warehouse")
-    public ResponseEntity<String> notifyWarehouse(){
-      dropPointService.notifyWarehouse();
-      return new ResponseEntity<>(dropPointService.notifyWarehouse(), HttpStatus.OK);
+    public ResponseEntity<String> notifyWarehouse() {
+        String response = dropPointService.notifyWarehouse();
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/empties")
+    public ResponseEntity<List<String>> getEmpties(){
+        List<String> empties = dropPointService.emptiesList();
+
+        return ResponseEntity.ok(empties);
     }
 }
