@@ -1,3 +1,4 @@
+const { default: axios } = require("axios");
 const Warehouse = require("../Models/warehouseModel");
 const { updateLog } = require("../Utils/updateLog");
 
@@ -97,4 +98,27 @@ exports.replenishBar = async (req, res, next) => {
     console.log(error);
     next(error);
   }
-};
+}
+
+exports.notification = async (req, res, next) => {
+  const { payload } = req.body;
+  console.log(payload);
+  try {  
+    
+    if (payload) {
+      const response = await axios.get("http://localhost:7000/api/drop_point/empties")
+      console.log('empties recieved')
+      console.log(response.data)
+     
+      const warehouse = await Warehouse.findOneAndUpdate({},{
+        $addToSet: {empties:response.data}
+      },{new:true});
+
+      console.log('empties in Warehouse:')
+      console.log(warehouse.empties)
+      res.status(200).json('Collection acknowledged');
+    }
+  } catch (error) {
+    next(error);
+  }
+}
