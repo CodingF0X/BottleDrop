@@ -4,13 +4,16 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
 @Component
 public class DropPointService {
 
     private final DropPointRepository dropPointRepository;
+    private static final String warehouse_URL =   "http://localhost:5000/api/warehouse/notification";
 
     public DropPointService(DropPointRepository dropPointRepository) {
         this.dropPointRepository = dropPointRepository;
@@ -47,5 +50,33 @@ public class DropPointService {
         return dropPointRepository.save(dropPoint);
     }
 
+
+    //-- Notify Warehouse --//
+    public void notifyWarehouse (){
+        String payload = "Drop point is full";
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        try{
+            ResponseEntity<String> response = restTemplate.postForEntity(warehouse_URL,payload,String.class);
+
+           Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
+           if (!optionalDropPoint.isPresent()) {
+             throw new IllegalStateException("No drop point found");
+           }
+
+           DropPoint dropPoint = optionalDropPoint.get();
+           List<String> empties = dropPoint.getEmpties();
+
+           empties.clear();
+           dropPointRepository.save(dropPoint);
+
+           System.out.println("Payload from warehouse: " + response.getBody());
+
+        }catch(Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("Failed to notify warehouse", e);
+        }
+    }
 
 }

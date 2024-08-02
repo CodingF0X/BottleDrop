@@ -39,4 +39,10 @@ public class MangementController {
                 DropPoint dropPoint = dropPointService.dropBottles(emptyBottles.getEmptyBottles());
         return new ResponseEntity<>(dropPoint, HttpStatus.OK);
     }
+
+    @PostMapping("/notify-warehouse")
+    public ResponseEntity<String> notifyWarehouse(){
+      dropPointService.notifyWarehouse();
+      return new ResponseEntity<>(dropPointService.notifyWarehouse(), HttpStatus.OK);
+    }
 }
