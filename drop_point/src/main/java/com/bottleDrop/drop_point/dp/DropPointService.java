@@ -107,4 +107,13 @@ public class DropPointService {
         }
     }
 
+    //-- GET empties --//
+    public List<String> emptiesList(){
+
+        Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
+        DropPoint dropPoint = optionalDropPoint.get();
+        
+        return dropPoint.getEmpties();
+    }
+
 }

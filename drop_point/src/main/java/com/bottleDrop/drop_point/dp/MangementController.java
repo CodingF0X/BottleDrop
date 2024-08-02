@@ -45,4 +45,11 @@ public class MangementController {
         String response = dropPointService.notifyWarehouse();
         return ResponseEntity.ok(response);
     }
+
+    @GetMapping("/empties")
+    public ResponseEntity<List<String>> getEmpties(){
+        List<String> empties = dropPointService.emptiesList();
+
+        return ResponseEntity.ok(empties);
+    }
 }
