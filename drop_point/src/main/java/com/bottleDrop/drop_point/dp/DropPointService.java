@@ -23,6 +23,7 @@ public class DropPointService {
     private final DropPointRepository dropPointRepository;
     private static final String warehouse_URL = "http://localhost:5000/api/warehouse/notification";
 
+    private int threshold = 10;
     @Autowired
     private RestTemplate restTemplate;
 
@@ -52,8 +53,9 @@ public class DropPointService {
         List<String> empties = dropPoint.getEmpties();
         List<String> log = dropPoint.getLog();
 
-        if (empties.size() >= 6 || (empties.size() + emptyBottles.size()) > 6) {
-            dropPoint.setEmpties(List.of()); // Clear the empties
+        if (empties.size() >= threshold || (empties.size() + emptyBottles.size()) > threshold) {
+            // dropPoint.setEmpties(List.of()); // Clear the empties
+            notifyWarehouse();
         }
 
         empties.addAll(emptyBottles); // Add new empty bottles
@@ -112,7 +114,7 @@ public class DropPointService {
 
         Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
         DropPoint dropPoint = optionalDropPoint.get();
-        
+
         return dropPoint.getEmpties();
     }
 
