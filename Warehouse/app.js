@@ -9,6 +9,7 @@ const cors = require("cors");
 const warehouserRouter = require('./src/Routes/warehouseRoutes');
 const beverageRouter = require('./src/Routes/beverageRoutes');
 const errorHandler = require("./src/Middleware/errorHandler");
+const { client } = require("./src/config/eurekaClient");
 
 app.use(express.json());
 app.use(cors());
@@ -21,6 +22,7 @@ const DB = mongoose.connect(process.env.MONGO_URI);
 app.listen(process.env.PORT, DB, () => {
   console.log("Connected to DB");
   console.log("Server listening on port " + process.env.PORT);
+  client.start();
 });
 
 app.use("/api/warehouse", warehouserRouter);
