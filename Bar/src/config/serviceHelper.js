@@ -1,6 +1,15 @@
-const { client } = require("./eurekaClient");
+const { client, fetchConfig } = require("./eurekaClient");
 require("dotenv").config();
 const { default: axios } = require("axios");
+
+
+let config = {};
+
+fetchConfig(process.env.SERVICE_NAME).then(conf => {
+  config = conf;
+  console.log('Config fetched:', config);
+});
+
 
 async function getWarehouse_ServiceInstance() {
   const instances = client.getInstancesByAppId("Warehouse_Service");
@@ -13,7 +22,7 @@ async function getWarehouse_ServiceInstance() {
 async function fetchDataFromWarehouse_Service() {
   const instance = await getWarehouse_ServiceInstance();
   console.log(instance);
-  const url = `http://${instance.hostName}:${instance.port.$}/api/warehouse/getAllBeverages`;
+  const url = `http://${instance.hostName}:${instance.port.$}${config['getAllBeverages.data.endpoint']}`;
   const response = await axios.get(url);
   return response.data;
 }

@@ -3,7 +3,20 @@ const axios = require('axios');
 require('dotenv').config();
 
 const eurekaPort = process.env.EUREKA_PORT
+const configServerUrl = process.env.CONFIG_SERVER_URL
 
+
+async function fetchConfig(serviceName) {
+    try {
+      const response = await axios.get(`${configServerUrl}/${serviceName}/default`);
+      console.log(response.data.propertySources[0].source)
+      return response.data.propertySources[0].source;
+    } catch (error) {
+      console.error('Failed to fetch config:', error);
+      return {};
+    }
+  }
+  
 
 const client = new Eureka({
     instance: {
@@ -30,5 +43,6 @@ const client = new Eureka({
   
   module.exports = {
       client,
+      fetchConfig
     };
   
