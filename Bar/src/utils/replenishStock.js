@@ -1,4 +1,4 @@
-const axios = require("axios");
+const { replenishmentBreaker } = require("../config/serviceHelper");
 
 const updateBarStock = async (barId, beverageType, recievedDrinks) => {
   try {
@@ -49,11 +49,9 @@ exports.ManuallyUpdateStock = async (barName, bevtype, quantity) => {
       bevtype: bevtype,
       barName: barName,
     };
-    const response = await axios.post(
-      "http://localhost:5000/api/warehouse/replenishBar",
-      data
-    );
-    return response.data;
+    const response = await replenishmentBreaker.fire(data);
+
+    return response;
   } catch (error) {
     console.log("Threshold function error: " + error);
   }
