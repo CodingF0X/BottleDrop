@@ -4,6 +4,7 @@ require('dotenv').config();
 
 const SERVICE_NAME = process.env.SERVICE_NAME
 const eurekaPort = process.env.EUREKA_PORT
+const DOCKER_DNS = process.env.DOCKER_DNS;
 
 
 const client = new Eureka({
@@ -23,7 +24,7 @@ const client = new Eureka({
       },
     },
     eureka: {
-      host: 'localhost',
+      host: 'eureka-server' || 'localhost',
       port: eurekaPort,
       servicePath: '/eureka/apps/'
     }
