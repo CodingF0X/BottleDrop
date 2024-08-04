@@ -9,8 +9,8 @@ services:
       - ./Warehouse/.env
     networks:
       - microservices-network
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     
   bar_service:
     container_name: Bar_Service
@@ -21,8 +21,8 @@ services:
       - ./Bar/.env
     networks:
       - microservices-network
-    # extra_hosts:
-    #   - "host.docker.internal:host-gateway"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   eureka-server:
     build:
@@ -33,6 +33,8 @@ services:
       - "8761:8761"
     networks:
       - microservices-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   config-server:
     build:
@@ -46,6 +48,8 @@ services:
       - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/app/config
     networks:
       - microservices-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     
   mongo:
     image: mongo:4.4
@@ -56,7 +60,8 @@ services:
       - mongo-data:/data/db
     networks:
       - microservices-network
-
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
   # frontend:
   #   container_name: frontend
   #   build: ./frontend
