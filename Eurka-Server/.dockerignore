@@ -1,0 +1,7 @@
+target/
+*.jar
+*.war
+*.class
+Dockerfile
+.dockerignore
+README.md

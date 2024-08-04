@@ -1,0 +1,89 @@
+version: '3.8'
+services:
+  warehouse_service:
+    container_name: Warehouse_Service
+    build: ./warehouse
+    ports:
+      - "5000:5000"
+    env_file:
+      - ./Warehouse/.env
+    networks:
+      - microservices-network
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+    
+  bar_service:
+    container_name: Bar_Service
+    build: ./bar
+    ports:
+      - "9000:9000"
+    env_file:
+      - ./Bar/.env
+    networks:
+      - microservices-network
+    # extra_hosts:
+    #   - "host.docker.internal:host-gateway"
+
+  eureka-server:
+    build:
+      context: ./eurka-server
+      dockerfile: Dockerfile
+    container_name: eureka-server
+    ports:
+      - "8761:8761"
+    networks:
+      - microservices-network
+
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    container_name: config-server
+    ports:
+      - "8888:8888"
+    environment:
+      - SPRING_PROFILES_ACTIVE=native
+      - SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS=file:/app/config
+    networks:
+      - microservices-network
+    
+  mongo:
+    image: mongo:4.4
+    container_name: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - microservices-network
+
+  # frontend:
+  #   container_name: frontend
+  #   build: ./frontend
+  #   ports:
+  #     - "3000:3000"
+  #   networks:
+  #     - microservices-network
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+
+ 
+
+  # drop_point_service:
+  #   container_name: drop_point
+  #   build: ./drop_point
+  #   ports:
+  #     - "7000:7000"
+  #   env_file:
+  #     - ./Drop_Point/.env
+  #   networks:
+  #     - microservices-network
+  #   extra_hosts:
+  #     - "host.docker.internal:host-gateway"
+
+volumes:
+  mongo-data:
+
+networks:
+  microservices-network:  
+    driver: bridge
