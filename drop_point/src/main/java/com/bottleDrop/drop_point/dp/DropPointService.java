@@ -6,26 +6,35 @@ import java.util.Optional;
 import java.util.logging.Logger;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.circuitbreaker.resilience4j.Resilience4JCircuitBreakerFactory;
+import org.springframework.cloud.client.ServiceInstance;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
 
 @Component
 public class DropPointService {
 
-    private static final Logger LOGGER = Logger.getLogger(DropPointService.class.getName());
-    private final DropPointRepository dropPointRepository;
-    private static final String warehouse_URL = "http://localhost:5000/api/warehouse/notification";
+    @Value("${notifyWarehouse.data.endpoint}")
+    private String warehouse_endpoint;
 
-    private int threshold = 10;
+    @Autowired
+    private DiscoveryClient discoveryClient;
+
+    @Autowired
+    private Resilience4JCircuitBreakerFactory circuitBreakerFactory;
+
     @Autowired
     private RestTemplate restTemplate;
+
+    private static final Logger LOGGER = Logger.getLogger(DropPointService.class.getName());
+    private final DropPointRepository dropPointRepository;
+    private int threshold = 10;
 
     public DropPointService(DropPointRepository dropPointRepository) {
         this.dropPointRepository = dropPointRepository;
@@ -33,7 +42,6 @@ public class DropPointService {
 
     // -- GET all drop points --//
     public List<DropPoint> getDropPoints() {
-
         return dropPointRepository.findAll();
     }
 
@@ -65,52 +73,60 @@ public class DropPointService {
 
     // -- Notify Warehouse --//
     public String notifyWarehouse() {
+        List<ServiceInstance> instances = discoveryClient.getInstances("Warehouse_Service");
+
+        ServiceInstance serviceInstance = instances.get(0);
+        String url = "http://" + serviceInstance.getInstanceId() + ":" + serviceInstance.getPort() + warehouse_endpoint;
+        System.out.println(serviceInstance.getInstanceId());
+
         String jsonPayload = "{\"payload\": \"Drop point is full\"}";
 
         HttpHeaders headers = new HttpHeaders();
         headers.set("Content-Type", "application/json");
         HttpEntity<String> requestEntity = new HttpEntity<>(jsonPayload, headers);
 
-        try {
-            ResponseEntity<String> response = restTemplate.exchange(
-                    warehouse_URL,
-                    HttpMethod.POST,
-                    requestEntity,
-                    String.class);
-            LOGGER.info("Response Status Code: " + response.getStatusCode());
-            LOGGER.info("Response from warehouse: " + response.getBody());
+        return circuitBreakerFactory.create("warehouseCircuitBreaker").run(() -> {
+            try {
+                ResponseEntity<String> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.POST,
+                        requestEntity,
+                        String.class);
+                LOGGER.info("Response Status Code: " + response.getStatusCode());
+                LOGGER.info("Response from warehouse: " + response.getBody());
 
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                System.out.println("Response from warehouse: " + response.getBody());
-            } else {
-                System.out.println("Failed to get a successful response. Status code: " + response.getStatusCode());
+                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                    System.out.println("Response from warehouse: " + response.getBody());
+                } else {
+                    System.out.println("Failed to get a successful response. Status code: " + response.getStatusCode());
+                }
+
+                Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
+                if (!optionalDropPoint.isPresent()) {
+                    throw new IllegalStateException("No drop point found");
+                }
+
+                DropPoint dropPoint = optionalDropPoint.get();
+                List<String> empties = dropPoint.getEmpties();
+                if (empties == null) {
+                    empties = new ArrayList<>();
+                } else {
+                    empties.clear();
+                }
+                dropPoint.setEmpties(empties);
+                dropPointRepository.save(dropPoint);
+
+                return response.getBody();
+
+            } catch (Exception e) {
+                LOGGER.severe("Error occurred while notifying warehouse: " + e.getMessage());
+                throw e; // Rethrow to allow circuit breaker to handle it
             }
-
-            Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
-            if (!optionalDropPoint.isPresent()) {
-                throw new IllegalStateException("No drop point found");
-            }
-
-            DropPoint dropPoint = optionalDropPoint.get();
-            List<String> empties = dropPoint.getEmpties();
-            if (empties == null) {
-                empties = new ArrayList<>();
-            } else {
-                empties.clear();
-            }
-            dropPoint.setEmpties(empties);
-            dropPointRepository.save(dropPoint);
-
-            return response.getBody();
-
-        } catch (Exception e) {
-            LOGGER.severe("Error occurred while notifying warehouse: " + e.getMessage());
-            return "Error";
-        }
+        }, throwable -> "Service is currently unavailable. Please try again later.");
     }
 
-    //-- GET empties --//
-    public List<String> emptiesList(){
+    // -- GET empties --//
+    public List<String> emptiesList() {
 
         Optional<DropPoint> optionalDropPoint = dropPointRepository.findAll().stream().findFirst();
         DropPoint dropPoint = optionalDropPoint.get();
