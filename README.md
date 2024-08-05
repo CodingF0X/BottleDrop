@@ -14,7 +14,7 @@ for more details:
 ## Installation
 1. Clone the repository:
     ```sh
-    git clone https://git.inf.fh-dortmund.de/01/jaalk001/dmsa-sose24-teamfox.git
+    git clone https://github.com/CodingF0X/BottleDrop.git
     ```
 4.  run the app:
     ```bash
