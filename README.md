@@ -1,5 +1,5 @@
 # BottleDrop
-A Domain-Driven Design Approach to Beverage Management
+A Domain-Driven Design Approach to developing Beverage Management system.
 
 # Description
 BottleDrop is a distributed microservices application designed to manage beverage services at an event.
