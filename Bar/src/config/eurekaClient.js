@@ -3,13 +3,12 @@ const axios = require("axios");
 require("dotenv").config();
 
 const eurekaPort = process.env.EUREKA_PORT;
-const configServerUrl =
-  process.env.CONFIG_SERVER_URL_LOCAL_MACHINE || CONFIG_SERVER_URL_DOCKER;
+const configServerUrl = process.env.CONFIG_SERVER_URL_LOCAL_MACHINE;
 
 async function fetchConfig(serviceName) {
   try {
     const response = await axios.get(
-      `config-server/${serviceName}/default`
+      `${configServerUrl}/${serviceName}/default`
     );
     console.log(response.data.propertySources[0].source);
     return response.data.propertySources[0].source;
@@ -22,7 +21,7 @@ async function fetchConfig(serviceName) {
 const client = new Eureka({
   instance: {
     app: process.env.SERVICE_NAME,
-    hostName: 'localhost',
+    hostName: "localhost",
     ipAddr: "127.0.0.1",
     statusPageUrl: `http://localhost:${process.env.PORT}`,
     port: {
